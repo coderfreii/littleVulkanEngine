@@ -32,6 +32,7 @@ FirstApp::FirstApp() {
 FirstApp::~FirstApp() {}
 
 void FirstApp::run() {
+  //here we creare uniform buffers , the count according to LveSwapChain::MAX_FRAMES_IN_FLIGHT
   std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
   for (int i = 0; i < uboBuffers.size(); i++) {
     uboBuffers[i] = std::make_unique<LveBuffer>(
@@ -43,17 +44,19 @@ void FirstApp::run() {
     uboBuffers[i]->map();
   }
 
+  //create uniforbuffer layout
   auto globalSetLayout =
       LveDescriptorSetLayout::Builder(lveDevice)
           .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
           .build();
 
+  //create descriptorSets according to specify layout
   std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
   for (int i = 0; i < globalDescriptorSets.size(); i++) {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
-    LveDescriptorWriter(*globalSetLayout, *globalPool)
-        .writeBuffer(0, &bufferInfo)
-        .build(globalDescriptorSets[i]);
+    LveDescriptorWriter(*globalSetLayout, *globalPool)  //»ù´¡
+        .writeBuffer(0, &bufferInfo)  //create writer
+        .build(globalDescriptorSets[i]);  //allcator mem for descriptorSets and update descriptorSets
   }
 
   SimpleRenderSystem simpleRenderSystem{
@@ -109,7 +112,7 @@ void FirstApp::run() {
 
       // order here matters
       simpleRenderSystem.renderGameObjects(frameInfo);
-      pointLightSystem.render(frameInfo);
+      //pointLightSystem.render(frameInfo);
 
       lveRenderer.endSwapChainRenderPass(commandBuffer);
       lveRenderer.endFrame();
